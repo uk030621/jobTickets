@@ -1,3 +1,4 @@
+//app/models/Ticket.js
 import mongoose, { Schema } from "mongoose";
 
 mongoose.connect(process.env.MONGODB_URI);

@@ -1,75 +1,60 @@
-import clientPromise from "@/lib/db";
+// app/api/categories/route.js
+import Category from "@/app/models/Category";
 import { NextResponse } from "next/server";
 
-// Fetch categories (GET) or Add a category (POST) or Delete a category (DELETE)
+// GET all categories
 export async function GET() {
   try {
-    const client = await clientPromise;
-    const db = client.db("ticket-db");
-    const collection = db.collection("categories");
-
-    const categories = await collection.find({}).toArray();
-    return NextResponse.json({ categories: categories.map((cat) => cat.name) });
+    const categories = await Category.find({});
+    return NextResponse.json({ categories }, { status: 200 });
   } catch (error) {
     return NextResponse.json(
-      { error: "Failed to fetch categories" },
+      { message: "Error fetching categories", error },
       { status: 500 }
     );
   }
 }
 
-export async function POST(request) {
-  const { name } = await request.json();
-
-  if (!name) {
-    return NextResponse.json(
-      { error: "Category name is required" },
-      { status: 400 }
-    );
-  }
-
+// POST to add a new category
+export async function POST(req) {
   try {
-    const client = await clientPromise;
-    const db = client.db("ticket-db");
-    const collection = db.collection("categories");
+    const { name } = await req.json();
 
-    await collection.insertOne({ name });
+    // Check if category already exists
+    const existingCategory = await Category.findOne({ name });
+    if (existingCategory) {
+      return NextResponse.json(
+        { message: "Category already exists" },
+        { status: 400 }
+      );
+    }
 
-    const categories = await collection.find({}).toArray();
-    return NextResponse.json(
-      { categories: categories.map((cat) => cat.name) },
-      { status: 201 }
-    );
+    const newCategory = new Category({ name });
+    await newCategory.save();
+
+    const categories = await Category.find({});
+    return NextResponse.json({ categories }, { status: 201 });
   } catch (error) {
     return NextResponse.json(
-      { error: "Failed to add category" },
+      { message: "Error adding category", error },
       { status: 500 }
     );
   }
 }
 
-export async function DELETE(request) {
-  const { name } = await request.json();
-
-  if (!name) {
-    return NextResponse.json(
-      { error: "Category name is required" },
-      { status: 400 }
-    );
-  }
-
+// DELETE a category
+export async function DELETE(req) {
   try {
-    const client = await clientPromise;
-    const db = client.db("ticket-db");
-    const collection = db.collection("categories");
+    const { name } = await req.json();
 
-    await collection.deleteOne({ name });
+    // Remove the category from the database
+    await Category.findOneAndDelete({ name });
 
-    const categories = await collection.find({}).toArray();
-    return NextResponse.json({ categories: categories.map((cat) => cat.name) });
+    const categories = await Category.find({});
+    return NextResponse.json({ categories }, { status: 200 });
   } catch (error) {
     return NextResponse.json(
-      { error: "Failed to delete category" },
+      { message: "Error deleting category", error },
       { status: 500 }
     );
   }
