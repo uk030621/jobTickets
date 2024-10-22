@@ -156,25 +156,38 @@ const EditTicketForm = ({ ticket }) => {
 
         {/* Add New Category */}
         <div className="category-management">
-          <label>New Category</label>
+          {/*<label className="mr-0">New Category</label>*/}
           <input
+            className="mt-1"
             type="text"
             value={newCategory}
             onChange={(e) => setNewCategory(e.target.value)}
-            placeholder="New Category"
+            placeholder="Enter New Category"
           />
-          <button type="button" onClick={addCategory}>
+          <button
+            className="ml-3 bg-slate-600 grey px-2 py-1 rounded-md hover:bg-slate-400 hover:text-black"
+            type="button"
+            onClick={addCategory}
+          >
             Add
           </button>
         </div>
 
         {/* Delete Category */}
         <div className="category-management">
-          <label>Delete Categories</label>
+          <div className="mb-4">
+            <label className="text-sm underline underline-offset-4">
+              Delete Categories:
+            </label>
+          </div>
           {categories.map((category, index) => (
-            <div key={index} className="flex justify-between">
+            <div key={index} className="flex justify-between text-xs">
               <span>{category}</span>
-              <button type="button" onClick={() => deleteCategory(category)}>
+              <button
+                className="bg-red-500 text-xs p-1 rounded-md mt-1 hover:bg-red-500 hover:text-black"
+                type="button"
+                onClick={() => deleteCategory(category)}
+              >
                 Delete
               </button>
             </div>
@@ -222,6 +235,7 @@ const EditTicketForm = ({ ticket }) => {
 
         {/* Submit */}
         <input
+          className="btn bg-green-700 hover:bg-green-600 text-white w-fit"
           type="submit"
           value={EDITMODE ? "Update Ticket" : "Create Ticket"}
         />
