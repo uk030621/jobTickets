@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const EditTicketForm = ({ ticket }) => {
   const EDITMODE = ticket._id === "new" ? false : true;
@@ -24,6 +24,23 @@ const EditTicketForm = ({ ticket }) => {
   }
 
   const [formData, setFormData] = useState(startingTicketData);
+  const [categories, setCategories] = useState([]);
+  const [newCategory, setNewCategory] = useState(""); // Input for adding new category
+
+  // Fetch categories from API when the component mounts
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("/api/categories");
+        const data = await response.json();
+        setCategories(data.categories);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const handleChange = (e) => {
     const value = e.target.value;
@@ -53,8 +70,9 @@ const EditTicketForm = ({ ticket }) => {
       const res = await fetch("/api/Tickets", {
         method: "POST",
         body: JSON.stringify({ formData }),
-        //@ts-ignore
-        "Content-Type": "application/json",
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
       if (!res.ok) {
         throw new Error("Failed to create ticket");
@@ -65,21 +83,59 @@ const EditTicketForm = ({ ticket }) => {
     router.push("/");
   };
 
-  const categories = [
-    "Hardware Problem",
-    "Software Problem",
-    "Application Deveopment",
-    "Project",
-  ];
+  // Function to add new category
+  const addCategory = async () => {
+    if (newCategory && !categories.includes(newCategory)) {
+      try {
+        const response = await fetch("/api/categories", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ name: newCategory }),
+        });
+
+        if (!response.ok) throw new Error("Failed to add category");
+
+        const data = await response.json();
+        setCategories(data.categories); // Update categories state
+        setNewCategory(""); // Clear input after adding
+      } catch (error) {
+        console.error("Error adding category:", error);
+      }
+    }
+  };
+
+  // Function to delete a category
+  const deleteCategory = async (categoryToDelete) => {
+    try {
+      const response = await fetch("/api/categories", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name: categoryToDelete }),
+      });
+
+      if (!response.ok) throw new Error("Failed to delete category");
+
+      const data = await response.json();
+      setCategories(data.categories); // Update categories state after deletion
+    } catch (error) {
+      console.error("Error deleting category:", error);
+    }
+  };
 
   return (
-    <div className=" flex justify-center">
+    <div className="flex justify-center">
       <form
         onSubmit={handleSubmit}
         method="post"
         className="flex flex-col gap-3 w-3/4"
       >
         <h3>{EDITMODE ? "Update Your Ticket" : "Create New Ticket"}</h3>
+
+        {/* Title */}
         <label>Title</label>
         <input
           id="title"
@@ -89,6 +145,8 @@ const EditTicketForm = ({ ticket }) => {
           required={true}
           value={formData.title}
         />
+
+        {/* Description */}
         <label>Description</label>
         <textarea
           id="description"
@@ -98,6 +156,8 @@ const EditTicketForm = ({ ticket }) => {
           value={formData.description}
           rows="5"
         />
+
+        {/* Category Selection */}
         <label>Category</label>
         <select
           name="category"
@@ -111,54 +171,62 @@ const EditTicketForm = ({ ticket }) => {
           ))}
         </select>
 
+        {/* Add New Category */}
+        <div className="category-management">
+          <label className="mr-2">Add New Category</label>
+          <input
+            type="text"
+            value={newCategory}
+            onChange={(e) => setNewCategory(e.target.value)}
+            placeholder="New Category"
+          />
+          <button
+            className="ml-3 bg-green-400 p-1 rounded-md"
+            type="button"
+            onClick={addCategory}
+          >
+            Add Category
+          </button>
+        </div>
+
+        {/* Delete Categories */}
+        <div className="category-management">
+          <div className="mb-4">
+            <label className="font-bold">Delete Categories</label>
+          </div>
+          {categories.map((category, index) => (
+            <div key={index} className="flex justify-between text-sm">
+              <span>{category}</span>
+              <button
+                className="bg-red-500 text-sm p-1 rounded-md mt-1"
+                type="button"
+                onClick={() => deleteCategory(category)}
+              >
+                Delete
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* Priority */}
         <label>Priority</label>
         <div>
-          <input
-            id="priority-1"
-            name="priority"
-            type="radio"
-            onChange={handleChange}
-            value={1}
-            checked={formData.priority == 1}
-          />
-          <label>1</label>
-          <input
-            id="priority-2"
-            name="priority"
-            type="radio"
-            onChange={handleChange}
-            value={2}
-            checked={formData.priority == 2}
-          />
-          <label>2</label>
-          <input
-            id="priority-3"
-            name="priority"
-            type="radio"
-            onChange={handleChange}
-            value={3}
-            checked={formData.priority == 3}
-          />
-          <label>3</label>
-          <input
-            id="priority-4"
-            name="priority"
-            type="radio"
-            onChange={handleChange}
-            value={4}
-            checked={formData.priority == 4}
-          />
-          <label>4</label>
-          <input
-            id="priority-5"
-            name="priority"
-            type="radio"
-            onChange={handleChange}
-            value={5}
-            checked={formData.priority == 5}
-          />
-          <label>5</label>
+          {[1, 2, 3, 4, 5].map((priority) => (
+            <React.Fragment key={priority}>
+              <input
+                id={`priority-${priority}`}
+                name="priority"
+                type="radio"
+                onChange={handleChange}
+                value={priority}
+                checked={formData.priority == priority}
+              />
+              <label>{priority}</label>
+            </React.Fragment>
+          ))}
         </div>
+
+        {/* Progress */}
         <label>Progress</label>
         <input
           type="range"
@@ -169,12 +237,17 @@ const EditTicketForm = ({ ticket }) => {
           max="100"
           onChange={handleChange}
         />
+
+        {/* Status */}
         <label>Status</label>
         <select name="status" value={formData.status} onChange={handleChange}>
           <option value="not started">Not Started</option>
+          <option value="on hold">On Hold</option>
           <option value="started">Started</option>
           <option value="done">Done</option>
         </select>
+
+        {/* Submit Button */}
         <input
           type="submit"
           className="btn max-w-xs"

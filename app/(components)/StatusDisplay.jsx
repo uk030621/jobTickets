@@ -6,6 +6,10 @@ const StatusDisplay = ({ status }) => {
         color = "bg-green-200";
         return color;
 
+      case "on hold":
+        color = "bg-blue-200";
+        return color;
+
       case "started":
         color = "bg-yellow-200";
         return color;
