@@ -11,7 +11,7 @@ const EditTicketForm = ({ ticket }) => {
     priority: 1,
     progress: 0,
     status: "not started",
-    category: "Hardware Problem",
+    category: "Miscellaneous",
   };
 
   if (EDITMODE) {
