@@ -2,33 +2,10 @@ import Ticket from "@/app/models/Ticket";
 import { NextResponse } from "next/server";
 
 export async function GET(request, { params }) {
-  try {
-    const { id } = params;
+  const { id } = params;
 
-    if (!id) {
-      return NextResponse.json(
-        { message: "Ticket ID not provided" },
-        { status: 400 }
-      );
-    }
-
-    const foundTicket = await Ticket.findOne({ _id: id });
-
-    if (!foundTicket) {
-      return NextResponse.json(
-        { message: "Ticket not found" },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json({ foundTicket }, { status: 200 });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { message: "Error fetching ticket", error },
-      { status: 500 }
-    );
-  }
+  const foundTicket = await Ticket.findOne({ _id: id });
+  return NextResponse.json({ foundTicket }, { status: 200 });
 }
 
 export async function PUT(req, { params }) {

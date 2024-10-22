@@ -1,42 +1,35 @@
-"use client"; // This enables client-side rendering in Next.js components
-
-import { useEffect, useState } from "react";
 import EditTicketForm from "@/app/(components)/EditTicketForm";
 
-const TicketPage = ({ params }) => {
-  const [ticketData, setTicketData] = useState(null);
-  const isEditMode = params.id !== "new";
+const getTicketById = async (id) => {
+  try {
+    const res = await fetch(`http://localhost:3000/api/Tickets/${id}`, {
+      cache: "no-store",
+    });
 
-  useEffect(() => {
-    const fetchTicket = async () => {
-      if (isEditMode) {
-        try {
-          const res = await fetch(
-            `http://localhost:3000/api/Tickets/${params.id}`,
-            { cache: "no-store" }
-          );
-          if (res.ok) {
-            const data = await res.json();
-            setTicketData(data.foundTicket);
-          } else {
-            console.error("Failed to fetch ticket");
-          }
-        } catch (error) {
-          console.error("Error fetching ticket", error);
-        }
-      } else {
-        setTicketData({ _id: "new" });
-      }
+    if (!res.ok) {
+      throw new Error("Failed to fetch topic");
+    }
+
+    return res.json();
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+let updateTicketData = {};
+const TicketPage = async ({ params }) => {
+  const EDITMODE = params.id === "new" ? false : true;
+
+  if (EDITMODE) {
+    updateTicketData = await getTicketById(params.id);
+    updateTicketData = updateTicketData.foundTicket;
+  } else {
+    updateTicketData = {
+      _id: "new",
     };
-
-    fetchTicket();
-  }, [isEditMode, params.id]);
-
-  if (!ticketData) {
-    return <div>Loading...</div>; // Display a loading message until ticketData is available
   }
 
-  return <EditTicketForm ticket={ticketData} />;
+  return <EditTicketForm ticket={updateTicketData} />;
 };
 
 export default TicketPage;
