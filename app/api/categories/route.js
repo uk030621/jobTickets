@@ -1,82 +1,75 @@
-import fs from "fs";
-import path from "path";
+import clientPromise from "@/lib/db";
 import { NextResponse } from "next/server";
 
-const filePath = path.join(process.cwd(), "data", "categories.json");
-
-// GET: Fetch all categories
+// Fetch categories (GET) or Add a category (POST) or Delete a category (DELETE)
 export async function GET() {
   try {
-    const fileData = fs.readFileSync(filePath, "utf-8");
-    const categories = JSON.parse(fileData);
-    return NextResponse.json({ categories });
+    const client = await clientPromise;
+    const db = client.db("ticket-db");
+    const collection = db.collection("categories");
+
+    const categories = await collection.find({}).toArray();
+    return NextResponse.json({ categories: categories.map((cat) => cat.name) });
   } catch (error) {
     return NextResponse.json(
-      { error: "Unable to fetch categories" },
+      { error: "Failed to fetch categories" },
       { status: 500 }
     );
   }
 }
 
-// POST: Add a new category
-export async function POST(req) {
+export async function POST(request) {
+  const { name } = await request.json();
+
+  if (!name) {
+    return NextResponse.json(
+      { error: "Category name is required" },
+      { status: 400 }
+    );
+  }
+
   try {
-    const { name } = await req.json(); // Category name from client request
+    const client = await clientPromise;
+    const db = client.db("ticket-db");
+    const collection = db.collection("categories");
 
-    // Read existing categories from JSON
-    const fileData = fs.readFileSync(filePath, "utf-8");
-    const categories = JSON.parse(fileData);
+    await collection.insertOne({ name });
 
-    // Check for duplicates
-    if (categories.includes(name)) {
-      return NextResponse.json(
-        { error: "Category already exists" },
-        { status: 400 }
-      );
-    }
-
-    // Add new category to the list
-    categories.push(name);
-
-    // Write the updated categories back to the file
-    fs.writeFileSync(filePath, JSON.stringify(categories, null, 2));
-
-    return NextResponse.json({ categories });
+    const categories = await collection.find({}).toArray();
+    return NextResponse.json(
+      { categories: categories.map((cat) => cat.name) },
+      { status: 201 }
+    );
   } catch (error) {
     return NextResponse.json(
-      { error: "Unable to add category" },
+      { error: "Failed to add category" },
       { status: 500 }
     );
   }
 }
 
-// DELETE: Delete a category
-export async function DELETE(req) {
+export async function DELETE(request) {
+  const { name } = await request.json();
+
+  if (!name) {
+    return NextResponse.json(
+      { error: "Category name is required" },
+      { status: 400 }
+    );
+  }
+
   try {
-    const { name } = await req.json(); // Category name to delete
+    const client = await clientPromise;
+    const db = client.db("ticket-db");
+    const collection = db.collection("categories");
 
-    // Read existing categories from JSON
-    const fileData = fs.readFileSync(filePath, "utf-8");
-    let categories = JSON.parse(fileData);
+    await collection.deleteOne({ name });
 
-    // Check if the category exists
-    if (!categories.includes(name)) {
-      return NextResponse.json(
-        { error: "Category not found" },
-        { status: 404 }
-      );
-    }
-
-    // Remove the category from the list
-    categories = categories.filter((category) => category !== name);
-
-    // Write the updated categories back to the file
-    fs.writeFileSync(filePath, JSON.stringify(categories, null, 2));
-
-    return NextResponse.json({ categories });
+    const categories = await collection.find({}).toArray();
+    return NextResponse.json({ categories: categories.map((cat) => cat.name) });
   } catch (error) {
     return NextResponse.json(
-      { error: "Unable to delete category" },
+      { error: "Failed to delete category" },
       { status: 500 }
     );
   }
