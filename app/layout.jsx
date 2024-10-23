@@ -24,6 +24,11 @@ export default function RootLayout({ children }) {
           <div className="flex-grow overflow-y-auto bg-page text-default-text">
             {children}
           </div>
+          <footer>
+            <p className="bg-nav text-white py-4 text-center">
+              © 2024 LWJ Job Tickets App. All rights reserved.
+            </p>
+          </footer>
         </div>
       </body>
     </html>
