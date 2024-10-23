@@ -137,21 +137,23 @@ const EditTicketForm = ({ ticket }) => {
         <h3>{EDITMODE ? "Update Your Ticket" : "Create New Ticket"}</h3>
 
         {/* Title */}
-        <label>Title</label>
+        {/*<label>Title</label>*/}
         <input
           id="title"
           name="title"
           type="text"
+          placeholder="Title"
           onChange={handleChange}
           required={true}
           value={formData.title}
         />
 
         {/* Description */}
-        <label>Description</label>
+        {/*<label className="mt-0">Description</label>*/}
         <textarea
           id="description"
           name="description"
+          placeholder="Description"
           onChange={handleChange}
           required={true}
           value={formData.description}
@@ -159,7 +161,7 @@ const EditTicketForm = ({ ticket }) => {
         />
 
         {/* Category Selection */}
-        <label>Category</label>
+        <label className="mt-0">Category</label>
         <select
           name="category"
           value={formData.category}
@@ -235,7 +237,7 @@ const EditTicketForm = ({ ticket }) => {
         </div>
 
         {/* Progress */}
-        <label>Progress</label>
+        <label className="mt-0">Progress</label>
         <input
           type="range"
           id="progress"
@@ -247,7 +249,7 @@ const EditTicketForm = ({ ticket }) => {
         />
 
         {/* Status */}
-        <label>Status</label>
+        <label className="mt-0">Status</label>
         <select name="status" value={formData.status} onChange={handleChange}>
           <option value="not started">Not Started</option>
           <option value="on hold">On Hold</option>
