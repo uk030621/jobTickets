@@ -132,7 +132,7 @@ const EditTicketForm = ({ ticket }) => {
       <form
         onSubmit={handleSubmit}
         method="post"
-        className="flex flex-col gap-3 w-3/4"
+        className="flex flex-col gap-3 w-full"
       >
         <h3>{EDITMODE ? "Update Your Ticket" : "Create New Ticket"}</h3>
 
@@ -174,7 +174,7 @@ const EditTicketForm = ({ ticket }) => {
 
         {/* Add New Category */}
         <div className="category-management">
-          <label className="mr-2">New Category</label>
+          {/*<label className="mr-2">New Category</label>*/}
           <input
             type="text"
             value={newCategory}
@@ -190,29 +190,34 @@ const EditTicketForm = ({ ticket }) => {
           </button>
         </div>
 
-        {/* Delete Categories */}
+        {/* Delete Categories with Dropdown */}
         <div className="category-management">
-          <div className="mb-4">
-            <label className="font-bold text-sm underline underline-offset-4">
+          <details className="mb-4">
+            <summary className="font-bold text-sm underline underline-offset-4 cursor-pointer">
               Delete Categories:
-            </label>
-          </div>
-          {categories.map((category, index) => (
-            <div key={category._id} className="flex justify-between text-sm">
-              <span>{category.name}</span>
-              <button
-                className="bg-red-500 text-sm p-1 rounded-md mt-1 hover:bg-red-500 hover:text-black"
-                type="button"
-                onClick={() => deleteCategory(category.name)} // Delete by name
-              >
-                Delete
-              </button>
+            </summary>
+            <div className="mt-2">
+              {categories.map((category, _index) => (
+                <div
+                  key={category._id}
+                  className="flex justify-between text-sm"
+                >
+                  <span>{category.name}</span>
+                  <button
+                    className="bg-black-500 text-sm p-1 rounded-md mt-1"
+                    type="button"
+                    onClick={() => deleteCategory(category.name)} // Delete by name
+                  >
+                    🗑️
+                  </button>
+                </div>
+              ))}
             </div>
-          ))}
+          </details>
         </div>
 
         {/* Priority */}
-        <label>Priority</label>
+        <label className="mt-0">Priority</label>
         <div>
           {[1, 2, 3, 4, 5].map((priority) => (
             <React.Fragment key={priority}>

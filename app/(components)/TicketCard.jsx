@@ -12,7 +12,8 @@ const TicketCard = ({ ticket }) => {
       day: "2-digit",
       hour: "2-digit",
       minute: "2-digit",
-      hour12: true,
+      hour12: false, // Use 24-hour format
+      timeZone: "Europe/London", // This ensures UK time, including BST
     };
 
     const date = new Date(timestamp);
