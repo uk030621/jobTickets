@@ -33,7 +33,7 @@ const TicketCard = ({ ticket }) => {
         </div>
       </div>
       <Link href={`/TicketPage/${ticket._id}`} style={{ display: "contents" }}>
-        <h4 className="mb-1">{ticket.title}</h4>
+        <h4 className="mb-1 break-words ">{ticket.title}</h4>
         <hr className="h-px border-0 bg-page mb-2" />
         <p className="whitespace-pre-wrap break-words overflow-hidden text-sm">
           {ticket.description}
